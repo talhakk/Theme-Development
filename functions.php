@@ -1,169 +1,59 @@
 <?php
-/**
- * Register block styles.
- */
 require_once get_template_directory().'/class-tgm-plugin-activation.php';
-
-if ( ! function_exists( 'talha_block_styles' ) ) :
-	/**
-	 * Register custom block styles
-	 *
-	 * @since Twenty Twenty-Four 1.0
-	 * @return void
-	 */
-	function talha_block_styles() {
-
-		register_block_style(
-			'core/details',
-			array(
-				'name'         => 'arrow-icon-details',
-				'label'        => __( 'Arrow icon', 'talha' ),
-				/*
-				 * Styles for the custom Arrow icon style of the Details block
-				 */
-				'inline_style' => '
-				.is-style-arrow-icon-details {
-					padding-top: var(--wp--preset--spacing--10);
-					padding-bottom: var(--wp--preset--spacing--10);
-				}
-
-				.is-style-arrow-icon-details summary {
-					list-style-type: "\2193\00a0\00a0\00a0";
-				}
-
-				.is-style-arrow-icon-details[open]>summary {
-					list-style-type: "\2192\00a0\00a0\00a0";
-				}',
-			)
-		);
-		register_block_style(
-			'core/post-terms',
-			array(
-				'name'         => 'pill',
-				'label'        => __( 'Pill', 'talha' ),
-				/*
-				 * Styles variation for post terms
-				 * https://github.com/WordPress/gutenberg/issues/24956
-				 */
-				'inline_style' => '
-				.is-style-pill a,
-				.is-style-pill span:not([class], [data-rich-text-placeholder]) {
-					display: inline-block;
-					background-color: var(--wp--preset--color--base-2);
-					padding: 0.375rem 0.875rem;
-					border-radius: var(--wp--preset--spacing--20);
-				}
-
-				.is-style-pill a:hover {
-					background-color: var(--wp--preset--color--contrast-3);
-				}',
-			)
-		);
-		register_block_style(
-			'core/list',
-			array(
-				'name'         => 'checkmark-list',
-				'label'        => __( 'Checkmark', 'talha' ),
-				/*
-				 * Styles for the custom checkmark list block style
-				 * https://github.com/WordPress/gutenberg/issues/51480
-				 */
-				'inline_style' => '
-				ul.is-style-checkmark-list {
-					list-style-type: "\2713";
-				}
-
-				ul.is-style-checkmark-list li {
-					padding-inline-start: 1ch;
-				}',
-			)
-		);
-		register_block_style(
-			'core/navigation-link',
-			array(
-				'name'         => 'arrow-link',
-				'label'        => __( 'With arrow', 'talha' ),
-				/*
-				 * Styles for the custom arrow nav link block style
-				 */
-				'inline_style' => '
-				.is-style-arrow-link .wp-block-navigation-item__label:after {
-					content: "\2197";
-					padding-inline-start: 0.25rem;
-					vertical-align: middle;
-					text-decoration: none;
-					display: inline-block;
-				}',
-			)
-		);
-		register_block_style(
-			'core/heading',
-			array(
-				'name'         => 'asterisk',
-				'label'        => __( 'With asterisk', 'talha' ),
-				'inline_style' => "
-				.is-style-asterisk:before {
-					content: '';
-					width: 1.5rem;
-					height: 3rem;
-					background: var(--wp--preset--color--contrast-2, currentColor);
-					clip-path: path('M11.93.684v8.039l5.633-5.633 1.216 1.23-5.66 5.66h8.04v1.737H13.2l5.701 5.701-1.23 1.23-5.742-5.742V21h-1.737v-8.094l-5.77 5.77-1.23-1.217 5.743-5.742H.842V9.98h8.162l-5.701-5.7 1.23-1.231 5.66 5.66V.684h1.737Z');
-					display: block;
-				}
-
-				/* Hide the asterisk if the heading has no content, to avoid using empty headings to display the asterisk only, which is an A11Y issue */
-				.is-style-asterisk:empty:before {
-					content: none;
-				}
-
-				.is-style-asterisk:-moz-only-whitespace:before {
-					content: none;
-				}
-
-				.is-style-asterisk.has-text-align-center:before {
-					margin: 0 auto;
-				}
-
-				.is-style-asterisk.has-text-align-right:before {
-					margin-left: auto;
-				}
-
-				.rtl .is-style-asterisk.has-text-align-left:before {
-					margin-right: auto;
-				}",
-			)
-		);
-	}
-endif;
-
-add_action( 'init', 'talha_block_styles' );
+/*
+if ( ! function_exists( 'talha_setup' ) ) :
+   
+    function talha_setup() {
+        add_theme_support('widgets-block-editor');
+        
+    }
+    endif; // talha_setup
+    add_action( 'after_setup_theme', 'talha_setup' );
+/**
+ * Register ACF Custom Blocks.
+ */
+add_action('acf/init', 'my_acf_init');
+function my_acf_init() {
+    
+    // check function exists
+    if( function_exists('acf_register_block') ) {
+        
+        // register a testimonial block
+        acf_register_block(array(
+            'name'              => 'testimonial',
+            'title'             => __('Testimonial'),
+            'description'       => __('A custom testimonial block.'),
+            'render_callback'   => 'my_acf_block_render_callback',
+            'category'          => 'formatting',
+            'icon'              => 'admin-comments',
+            'keywords'          => array( 'testimonial', 'quote' ),
+        ));
+    }
+}
+/**
+ * Render The ACF block
+ */
+function my_acf_block_render_callback( $block ) {
+    
+    // convert name ("acf/testimonial") into path friendly slug ("testimonial")
+    $slug = str_replace('acf/', '', $block['name']);
+    
+    // include a template part from within the "template-parts/block" folder
+    if( file_exists( get_theme_file_path("/template-parts/block/content-testimonial.php") ) ) {
+        include( get_theme_file_path("/template-parts/block/content-testimonial.php") );
+    }
+}
 
 /**
- * Register pattern categories.
+ * Register Customizer Settings.
+ * Required as theme options in assessment, However not required as i'm using a block theme
  */
+function talha_customize_register( $wp_customize ) {
+	// Do stuff with $wp_customize, the WP_Customize_Manager object.
 
-if ( ! function_exists( 'talha_pattern_categories' ) ) :
-	/**
-	 * Register pattern categories
-	 *
-	 * @since Twenty Twenty-Four 1.0
-	 * @return void
-	 */
-	function talha_pattern_categories() {
-
-		register_block_pattern_category(
-			'page',
-			array(
-				'label'       => _x( 'Pages', 'Block pattern category' ),
-				'description' => __( 'A collection of full page layouts.' ),
-			)
-		);
-	}
-endif;
-
-add_action( 'init', 'talha_pattern_categories' );
-
-
+  }
+ 
+  add_action( 'customize_register', 'talha_customize_register' );
 /**
  * TGM ACF Plugin Activation Class
  *
@@ -177,26 +67,27 @@ add_action( 'init', 'talha_pattern_categories' );
      // The commented out example shows how we can include and activation a bundled
      // plugin zip file in our theme.
      $plugins = array(
-        /*		array(
-                'name'               => 'Advanced Custom Fields',
-                'slug'               => 'advanced-custom-fields',
-                'source'             => get_stylesheet_directory() . '/theme/plugins/advanced-custom-fields.zip',
+       		array(
+                'name'               => 'Advanced Custom Fields Pro',
+                'slug'               => 'advanced-custom-fields-pro',
+                'source'             => get_stylesheet_directory() . '/plugins/advanced-custom-fields-pro.zip',
                 'required'           => true,
                 'version'            => '',
-                'force_activation'   => true, // Force activation because we need advanced custom fields,
+                'force_activation'   => false, // Force activation because we need advanced custom fields,
                 'force_deactivation' => false,
                 'external_url'       => ''
             ),
-        */
+       
             // This below definition will include the ACF plugin from the Wordpress.org plugins repository
             // and if permissions permit, will allow for it to be automatically downloaded and installed.
             // If permissions don't allow, the user will be prompted into downloading the plugin themselves
             // and installing it manually.
-            array(
+           /* array(
                 'name' 		=> 'Advanced Custom Fields',
                 'slug' 		=> 'advanced-custom-fields',
                 'required' 	=> true,
             ),
+            */
         );
     
         $theme_text_domain = 'talha';
